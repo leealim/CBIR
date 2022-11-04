@@ -31,8 +31,7 @@ class DataBase:
                     if not file.endswith('.jpg'):
                         continue
                     imgPath = os.path.join(curDir, file)
-                    img = cv2.imread(imgPath)
-                    feature = fe.img2feature(img)
+                    feature = fe.img2feature(imgPath)
                     strFea=[str(x) for x in feature]
                     f.write("%s,%s\n" % (imgPath,",".join(strFea)))
 

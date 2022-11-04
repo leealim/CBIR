@@ -1,18 +1,23 @@
 import numpy as np
 import cv2
 
+from VGGNet import VGGNet
+
 colorhistSize=[8,12,3]
 
 class FeatureExtra:
 
     def __init__(self,mi):
         self._methodID=mi
+        if self._methodID==2:
+            self.vg=VGGNet()
         
-    def img2feature(self, img):
+    def img2feature(self, imgPath):
         if self._methodID==1:
+            img = cv2.imread(imgPath)
             return self._colorFeaExt(img)
         elif self._methodID==2:
-            pass
+            return self.vg.extract_feat(imgPath)
         elif self._methodID==3:
             pass
         else:
@@ -59,6 +64,7 @@ class FeatureExtra:
         hist=hist.flatten()
 
         return hist 
+
  
  
        

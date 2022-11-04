@@ -32,7 +32,7 @@ class MainWindow:
         methodLabel.grid(row=1, column=0, padx=5, pady=5)
         colorRadio = tk.Radiobutton(self.mainWindow,text="Color",value=1,variable=methodInt)
         colorRadio.grid(row=1, column=1, padx=5, pady=5)
-        siftRadio = tk.Radiobutton(self.mainWindow,text="sift",value=2,variable=methodInt)
+        siftRadio = tk.Radiobutton(self.mainWindow,text="VggNet",value=2,variable=methodInt)
         siftRadio.grid(row=1, column=2, padx=5, pady=5)
         vgnRadio = tk.Radiobutton(self.mainWindow,text="vgn",value=3,variable=methodInt)
         vgnRadio.grid(row=1, column=3, padx=5, pady=5)
@@ -60,14 +60,14 @@ class MainWindow:
                         
         def selectDataSetPath():
             path = filedialog.askdirectory()
-            seaImgPathEntry.delete(0, END)
+            dataSetPathEntry.delete(0, END)
             dataSetPathEntry.insert(0, path)
 
         def search():
             imgPath=seaImgPathEntry.get()
             dataPath=dataSetPathEntry.get()
             csvPath=DataBase().getDatasetCsv(dataPath,methodInt.get())
-            resPaths=Search().searchImgMostCloestTen(imgPath,csvPath,methodInt.get())
+            resPaths=Search(methodInt.get()).searchImgMostCloestTenPath(imgPath,csvPath)
             tk.Label(self.mainWindow, text="Result Picture:").grid(row=5, column=0, padx=5, pady=5)
             for i,resPath in enumerate(resPaths):
                 openImg=Image.open(resPath)
