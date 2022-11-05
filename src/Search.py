@@ -2,7 +2,6 @@
 import csv
 from operator import itemgetter
 import numpy as np
-import cv2
 
 from Property import *
 from FeatureExtra import FeatureExtra
