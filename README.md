@@ -8,7 +8,9 @@ run `pip install -r requirements.txt` to install the packge
 # boost
 run `python src/main.py`
 
-default dataset=""
+# please notice:
+default_seaImg="193003.jpg"
+default_dataset="data/myData"
 
 
 
