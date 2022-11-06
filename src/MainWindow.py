@@ -1,15 +1,17 @@
-
+#
+# 
+# 主窗口类,实现UI的显示以及按钮的点击事件
+#
+#
 import tkinter as tk
 from tkinter import END, filedialog
 from PIL import Image, ImageTk
 
 from DataBase import DataBase
-from Search import Search
+from Search import Search 
 from Property import * 
 
-default_seaImg="193003.jpg"
-default_dataset="data/myData"
-default_method=1
+
 
 class MainWindow:
     def __init__(self,mw) -> None:
@@ -28,10 +30,11 @@ class MainWindow:
         searchButton.grid(row=0, column=2, padx=5, pady=5)
 
         methodInt = tk.IntVar()
-        methodInt.set(default_method)
+        methodInt.set(mw_default_method)
         methodLabel=tk.Label(self.mainWindow,text="Search Method:")
         methodLabel.grid(row=1, column=0, padx=5, pady=5)
 
+        #根据Property的methodNames灵活的生成单选框按钮，方便扩展
         for i,name in enumerate(methodNames):
             tk.Radiobutton(self.mainWindow,text=name,value=i+1,variable=methodInt).grid(row=1, column=i+1, padx=5, pady=5)
 
@@ -42,10 +45,10 @@ class MainWindow:
         dataSetPathLabel.grid(row=3, column=0, padx=5, pady=5)
         seaImgPathEntry=tk.Entry(self.mainWindow)
         seaImgPathEntry.grid(row=2, column=1, padx=5, pady=5)
-        seaImgPathEntry.insert( 0,  default_seaImg)
+        seaImgPathEntry.insert( 0,  mw_default_seaImg)
         dataSetPathEntry=tk.Entry(self.mainWindow)
         dataSetPathEntry.grid(row=3, column=1, padx=5, pady=5)
-        dataSetPathEntry.insert( 0,  default_dataset)
+        dataSetPathEntry.insert( 0,  mw_default_dataset)
 
 
         def selectFile():
@@ -62,12 +65,14 @@ class MainWindow:
             dataSetPathEntry.delete(0, END)
             dataSetPathEntry.insert(0, path)
 
+        #核心点击事件，交付界面数据到后台，处理后并显示结果图片，这里另开一个线程较好（这个小项目没必要了），运行时会阻塞主界面
         def search():
             self.resImgs.clear()
             imgPath=seaImgPathEntry.get()
             dataPath=dataSetPathEntry.get()
             csvPath=DataBase(methodInt.get()).getDatasetCsv(dataPath)
             resPaths=Search(methodInt.get()).searchImgMostCloestPath(imgPath,csvPath)
+            #根据传回的图片路径个数，灵活的排版
             tk.Label(self.mainWindow, text="Result Picture:").grid(row=5, column=0, padx=5, pady=5)
             for i,resPath in enumerate(resPaths):
                 openImg=Image.open(resPath)

@@ -1,18 +1,11 @@
-# -*- coding: utf-8 -*-
-# Author: yongyuan.name
-
 import numpy as np
 from numpy import linalg as LA
 import cv2
 from keras.applications.vgg19 import VGG19
 from keras.utils import image_utils
 from keras.applications.vgg19 import preprocess_input
+from Property import *
 
-batchSize=32
-input_shape = (224, 224, 3)
-weight = 'imagenet'
-poolingType = 'max'
-isInclude_top=False
 
 class VGGNet:
     def __init__(self):

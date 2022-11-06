@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
+from  Property import * 
 
-colorhistSize=[8,12,3]
 
 class Color:
     def __init__(self):

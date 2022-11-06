@@ -1,6 +1,10 @@
-import numpy as np
-import cv2
-
+#
+# 
+# 特征提取的分流类，具体实现在引入类中，其实这个做成抽象类更好，
+# 特征提取的要求是，输入一个图片或一批图片的路径，返回这一个或者
+# 一批图片的特征向量，必须flatten到1*m维
+#
+#
 from Property import *
 from VGGNet import VGGNet
 from Color import Color

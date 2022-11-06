@@ -1,3 +1,8 @@
+#
+# 
+# 搜索类，根据使用方法的不同选择不同的比较方法
+#
+#
 import csv
 from operator import itemgetter
 import numpy as np
@@ -7,129 +12,59 @@ from annoy import AnnoyIndex
 from Property import *
 from FeatureExtra import FeatureExtra
 
-colorEps = 1e-10
-
-
 class Search:
     def __init__(self, mi) -> None:
         self.methodID = mi
 
     def searchImgMostCloestPath(self, ip, cp):
-        if self.methodID == colorInt:
-            result = self._disSearch(ip, cp)
-        if self.methodID == vggnetInt:
-            result = self._scoreSearch(ip, cp)
-        if self.methodID == hashInt:
-            result = self._hammingSearch(ip, cp)
-        if self.methodID == siftInt:
-            result = self._siftMatcherSearch(ip, cp)
-
-        resPaths = [x[0] for x in result[0:displayImgaeNum]]
-        # print(resPaths)
-        return resPaths
-
-    def _disSearch(self, ip, cp):
-        eps = colorEps
+        ifSortReverse=False if self.methodID==colorInt or self.methodID==hashInt else True
         result = []
         tmpList = []
         fe = FeatureExtra(self.methodID)
         seaFeature = fe.img2feature(ip)
-        with open(cp) as f:
-            reader = csv.reader(f)
-            featureCnt = len(next(reader)) - 1
-            print(featureCnt)
-            a = AnnoyIndex(featureCnt, 'euclidean')
-            for index, row in enumerate(reader):
-                feature = [float(x) for x in row[1:]]
-                a.add_item(index, feature)
-                tmpList.append(row[0])
-        a.build(-1)
-        result_index = a.get_nns_by_vector(vector=seaFeature,
-                                           n=20)
-        result = [[tmpList[i], i] for i in result_index]
-        print(result)
-        return result
-
-    def _scoreSearch(self, ip, cp):
-        eps = colorEps
-        result = []
-        tmpList = []
-        fe = FeatureExtra(self.methodID)
-        seaFeature = fe.img2feature(ip)
-        with open(cp) as f:
-            reader = csv.reader(f)
-            featureCnt = len(next(reader)) - 1
-            print(featureCnt)
-            a = AnnoyIndex(featureCnt, 'dot')
-            for index, row in enumerate(reader):
-                feature = [float(x) for x in row[1:]]
-                a.add_item(index, feature)
-                tmpList.append(row[0])
-        a.build(-1)
-        result_index = a.get_nns_by_vector(vector=seaFeature,
-                                           n=20)
-        result = [[tmpList[i], i] for i in result_index]
-        print(result)
-        return result
-
-    def _hammingSearch(self, ip, cp):
-        eps = colorEps
-        result = []
-        tmpList = []
-        fe = FeatureExtra(self.methodID)
-        seaFeature = fe.img2feature(ip)
-        with open(cp) as f:
-            reader = csv.reader(f)
-            featureCnt = len(next(reader)) - 1
-            print(featureCnt)
-            a = AnnoyIndex(featureCnt, 'hamming')
-            for index, row in enumerate(reader):
-                feature = [float(x) for x in row[1:]]
-                a.add_item(index, feature)
-                tmpList.append(row[0])
-        a.build(-1)
-        result_index = a.get_nns_by_vector(vector=seaFeature,
-                                           n=20)
-        result = [[tmpList[i], i] for i in result_index]
-        print(result)
-        return result
-
-    # def _siftMatcherSearch(self, ip, cp):
-    #     result = []
-    #     matcher = cv2.BFMatcher()
-    #     fe = FeatureExtra(self.methodID)
-    #     seaFeature = fe.img2feature(ip)
-    #     seaDescribes = seaFeature[1:].reshape(int(seaFeature[0]), siftDescribeLengeh)
-    #     with open(cp) as f:
-    #         reader = csv.reader(f)
-    #         for row in reader:
-    #             feature = [float(x) for x in row[1:]]
-    #             describes = np.array(feature[1:], dtype='float32').reshape(int(feature[0]), siftDescribeLengeh)
-    #             matches = matcher.knnMatch(seaDescribes, describes, k=knnMatcheNum)
-    #             niceNum = 0
-    #             for m1, n1 in matches:
-    #                 if m1.distance < siftMatcheRatio * n1.distance:
-    #                     niceNum = niceNum + 1
-    #             result.append((row[0], niceNum))
-    #     result = sorted(result, key=itemgetter(1), reverse=True)
-    #     return result
-
-    def _siftMatcherSearch(self, ip, cp):
-        result = []
-        matcher = cv2.BFMatcher()
-        fe = FeatureExtra(self.methodID)
-        seaFeature = fe.img2feature(ip)
-        seaDescribes = seaFeature[1:].reshape(int(seaFeature[0]), siftDescribeLengeh)
         with open(cp) as f:
             reader = csv.reader(f)
             for row in reader:
-                feature = [float(x) for x in row[1:]]
-                describes = np.array(feature[1:], dtype='float32').reshape(int(feature[0]), siftDescribeLengeh)
-                matches = matcher.knnMatch(seaDescribes, describes, k=knnMatcheNum)
-                niceNum = 0
-                for m1, n1 in matches:
-                    if m1.distance < siftMatcheRatio * n1.distance:
-                        niceNum = niceNum + 1
-                result.append((row[0], niceNum))
-        result = sorted(result, key=itemgetter(1), reverse=True)
-        return result
+                if self.methodID==colorInt:
+                    result.append((row[0],self._disSearch(seaFeature,row[1:]))) 
+                if self.methodID==vggnetInt:
+                    result.append((row[0],self._scoreSearch(seaFeature,row[1:])))
+                if self.methodID==hashInt:
+                    result.append((row[0],self._hammingSearch(seaFeature,row[1:])))
+                if self.methodID==siftInt:
+                    result.append((row[0],self._siftMatcherSearch(seaFeature,row[1:])))
+        result=sorted(result, key=itemgetter(1),reverse=ifSortReverse)
+        resPaths = [x[0] for x in result[0:displayImgaeNum]]
+        return resPaths
+
+    def _disSearch(self,sf, row):
+        eps=se_colorEps
+        feature = [float(x) for x in row]
+        dis = 0.5*np.sum([((a-b)**2)/(a+b+eps) for (a, b) in zip(sf, feature)])
+        return dis
+
+    def _scoreSearch(self,sf, row):
+        feature = [float(x) for x in row]
+        score = np.dot(np.array(sf),np.array(feature).T)
+        return score
+
+
+    def _hammingSearch(self,sf, row):
+        dis=0
+        feature = [int(x) for x in row]
+        for i in range(0,len(sf)):
+            dis=dis+sf[i]^feature[i]
+        return dis
+
+    def _siftMatcherSearch(self,sf, row):
+        matcher = cv2.BFMatcher()
+        feature = [float(x) for x in row]
+        describes=np.array(feature[1:],dtype='float32').reshape(int(feature[0]),siftDescribeLengeh)
+        matches = matcher.knnMatch(sf, describes,k=knnMatcheNum)
+        niceNum=0
+        for m1, n1 in matches:
+            if m1.distance < siftMatcheRatio * n1.distance:
+                niceNum=niceNum+1
+        return niceNum
+
+        

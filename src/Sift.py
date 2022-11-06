@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 
 from Property import *
+
 class Sift:
     def __init__(self) -> None:
         self.sift=cv2.SIFT_create()

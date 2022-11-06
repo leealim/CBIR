@@ -1,10 +1,12 @@
-import cv2
+#
+# 
+# 索引生成文件，主要是当索引文件不存在时，从指定的数据集生成索引文件
+#
+#
 import os
 
 from FeatureExtra import FeatureExtra
 from Property import *
-
-pathBatchSize=100
 
 class DataBase:
 
@@ -35,7 +37,7 @@ class DataBase:
                         continue
                     imgPath = os.path.join(curDir, file)
                     paths.append(imgPath)
-                    if len(paths)==pathBatchSize:
+                    if len(paths)==dn_pathBatchSize:
                         features = fe.img2feature_batch(paths)
                         for i,fea in enumerate(features):
                             strFea=[str(x) for x in fea]
