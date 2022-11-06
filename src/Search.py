@@ -2,6 +2,7 @@
 import csv
 from operator import itemgetter
 import numpy as np
+import cv2
 
 from Property import *
 from FeatureExtra import FeatureExtra
@@ -19,6 +20,8 @@ class Search:
             result=self._scoreSearch(ip,cp)
         if self.methodID==hashInt:
             result=self._hammingSearch(ip,cp)
+        if self.methodID==siftInt:
+            result=self._siftMatcherSearch(ip,cp)
 
 
         resPaths = [x[0] for x in result[0:displayImgaeNum]]
@@ -68,4 +71,24 @@ class Search:
                 # if row[0] in testlist:
                 #     print(dis)
         result=sorted(result, key=itemgetter(1))
+        return result
+
+    def _siftMatcherSearch(self,ip, cp):
+        result = []
+        matcher = cv2.BFMatcher()
+        fe=FeatureExtra(self.methodID)
+        seaFeature = fe.img2feature(ip)
+        seaDescribes=seaFeature[1:].reshape(int(seaFeature[0]),siftDescribeLengeh)
+        with open(cp) as f:
+            reader = csv.reader(f)
+            for row in reader:
+                feature = [float(x) for x in row[1:]]
+                describes=np.array(feature[1:],dtype='float32').reshape(int(feature[0]),siftDescribeLengeh)
+                matches = matcher.knnMatch(seaDescribes, describes,k=knnMatcheNum)
+                niceNum=0
+                for m1, n1 in matches:
+                    if m1.distance < siftMatcheRatio * n1.distance:
+                        niceNum=niceNum+1
+                result.append((row[0], niceNum))
+        result=sorted(result, key=itemgetter(1),reverse=True)
         return result

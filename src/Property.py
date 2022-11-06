@@ -7,3 +7,7 @@ siftInt=methodNames.index("SIFT")+1
 
 displayImgaeNum=10 
 
+siftDescribeLengeh=128
+siftMatcheRatio = 0.5
+knnMatcheNum=2
+
