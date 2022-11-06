@@ -17,25 +17,37 @@ class Search:
         self.methodID = mi
 
     def searchImgMostCloestPath(self, ip, cp):
-        ifSortReverse=False if self.methodID==colorInt or self.methodID==hashInt else True
         result = []
-        tmpList = []
         fe = FeatureExtra(self.methodID)
         seaFeature = fe.img2feature(ip)
         with open(cp) as f:
             reader = csv.reader(f)
-            for row in reader:
-                if self.methodID==colorInt:
-                    result.append((row[0],self._disSearch(seaFeature,row[1:]))) 
-                if self.methodID==vggnetInt:
-                    result.append((row[0],self._scoreSearch(seaFeature,row[1:])))
-                if self.methodID==hashInt:
-                    result.append((row[0],self._hammingSearch(seaFeature,row[1:])))
-                if self.methodID==siftInt:
+
+            if self.methodID==siftInt:
+                for row in reader:
                     result.append((row[0],self._siftMatcherSearch(seaFeature,row[1:])))
-        result=sorted(result, key=itemgetter(1),reverse=ifSortReverse)
-        resPaths = [x[0] for x in result[0:displayImgaeNum]]
-        return resPaths
+                result=sorted(result, key=itemgetter(1),reverse=True)
+            else:                     
+                pathList = []
+                feaDimNum = len(next(reader))-1
+                if self.methodID==colorInt:annoyDisMethod='euclidean'
+                if self.methodID==vggnetInt:annoyDisMethod='dot'
+                if self.methodID == hashInt:annoyDisMethod='hamming'
+                annoyIndexList = AnnoyIndex(feaDimNum, annoyDisMethod)
+                for i, row in enumerate(reader):
+                    feature=None
+                    if self.methodID==colorInt:feature = [float(x) for x in row[1:]]
+                    if self.methodID==vggnetInt:feature = [float(x) for x in row[1:]]
+                    if self.methodID == hashInt:feature = [int(x) for x in row[1:]]
+                    annoyIndexList.add_item(i, feature)
+                    pathList.append(row[0])
+                annoyIndexList.build(-1)
+                result_index = annoyIndexList.get_nns_by_vector(vector=seaFeature,n=20)
+                result = [[pathList[i], i] for i in result_index]
+
+            resPaths = [x[0] for x in result[0:displayImgaeNum]]
+            return resPaths
+        
 
     def _disSearch(self,sf, row):
         eps=se_colorEps
@@ -59,8 +71,15 @@ class Search:
     def _siftMatcherSearch(self,sf, row):
         matcher = cv2.BFMatcher()
         feature = [float(x) for x in row]
+        seadescribes=sf[1:].reshape(int(sf[0]),siftDescribeLengeh)
         describes=np.array(feature[1:],dtype='float32').reshape(int(feature[0]),siftDescribeLengeh)
-        matches = matcher.knnMatch(sf, describes,k=knnMatcheNum)
+        # matches = matcher.knnMatch(seadescribes, describes,k=knnMatcheNum)
+        # niceNum=0
+        # for m1, n1 in matches:
+        #     if m1.distance < siftMatcheRatio * n1.distance:
+        #         niceNum=niceNum+1
+        # return niceNum
+        matches = matcher.Match(seadescribes, describes)
         niceNum=0
         for m1, n1 in matches:
             if m1.distance < siftMatcheRatio * n1.distance:
