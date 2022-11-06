@@ -55,10 +55,11 @@ class MainWindow:
             path = filedialog.askopenfilename()
             seaImgPathEntry.delete(0, END)
             seaImgPathEntry.insert(0, path)
-            openImg=Image.open(path)
-            self.seaImg = ImageTk.PhotoImage(openImg)
-            tk.Label(self.mainWindow, text="Search Picture:").grid(row=4, column=0, padx=5, pady=5)
-            tk.Label(self.mainWindow, image = self.seaImg).grid(row=4, column=1, padx=5, pady=5)
+            if path!="":
+                openImg=Image.open(path)
+                self.seaImg = ImageTk.PhotoImage(openImg)
+                tk.Label(self.mainWindow, text="Search Picture:").grid(row=4, column=0, padx=5, pady=5)
+                tk.Label(self.mainWindow, image = self.seaImg).grid(row=4, column=1, padx=5, pady=5)
                         
         def selectDataSetPath():
             path = filedialog.askdirectory()

@@ -12,7 +12,8 @@ siftInt=methodNames.index("SIFT")+1
 displayImgaeNum=10 
 
 mw_default_seaImg="testdata/193003.jpg"
-mw_default_dataset="testdata"
+#mw_default_dataset="testdata"
+mw_default_dataset="data/myData"
 mw_default_method=1
 
 dn_pathBatchSize=100
