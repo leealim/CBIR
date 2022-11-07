@@ -73,17 +73,17 @@ class Search:
         feature = [float(x) for x in row]
         seadescribes=sf[1:].reshape(int(sf[0]),siftDescribeLengeh)
         describes=np.array(feature[1:],dtype='float32').reshape(int(feature[0]),siftDescribeLengeh)
-        # matches = matcher.knnMatch(seadescribes, describes,k=knnMatcheNum)
-        # niceNum=0
-        # for m1, n1 in matches:
-        #     if m1.distance < siftMatcheRatio * n1.distance:
-        #         niceNum=niceNum+1
-        # return niceNum
-        matches = matcher.Match(seadescribes, describes)
+        matches = matcher.knnMatch(seadescribes, describes,k=knnMatcheNum)
         niceNum=0
         for m1, n1 in matches:
             if m1.distance < siftMatcheRatio * n1.distance:
                 niceNum=niceNum+1
         return niceNum
+        # matches = matcher.Match(seadescribes, describes)
+        # niceNum=0
+        # for m1, n1 in matches:
+        #     if m1.distance < siftMatcheRatio * n1.distance:
+        #         niceNum=niceNum+1
+        # return niceNum
 
         

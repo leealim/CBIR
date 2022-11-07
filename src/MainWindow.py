@@ -5,7 +5,9 @@
 #
 import tkinter as tk
 from tkinter import END, filedialog
+from tkinter.messagebox import showinfo
 from PIL import Image, ImageTk
+import time
 
 from DataBase import DataBase
 from Search import Search 
@@ -68,6 +70,7 @@ class MainWindow:
 
         #核心点击事件，交付界面数据到后台，处理后并显示结果图片，这里另开一个线程较好（这个小项目没必要了），运行时会阻塞主界面
         def search():
+            beginTime=time.time()
             self.resImgs.clear()
             imgPath=seaImgPathEntry.get()
             dataPath=dataSetPathEntry.get()
@@ -79,3 +82,5 @@ class MainWindow:
                 openImg=Image.open(resPath)
                 self.resImgs.append(ImageTk.PhotoImage(openImg))
                 tk.Label(self.mainWindow, image = self.resImgs[i]).grid(row=int(5+i/5), column=int(1+i%5))   
+            endTime=time.time()
+            showinfo(title = "提示",message = "method %s spends %f s" %(methodNames[ methodInt.get()-1],endTime-beginTime))
